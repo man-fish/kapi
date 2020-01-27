@@ -7,12 +7,11 @@ import (
 	"strconv"
 )
 
-func NewMysqlConn() (db *sql.DB,err error) {
-	dsn := "root:root@tcp(127.0.0.1:3306)/kapi"
+func NewMysqlConn(dsn string) (db *sql.DB,err error) {
 	return sql.Open("mysql", dsn)
 }
 
-func SQLToMap(rows *sql.Rows) map[string]string {
+func RowToMap(rows *sql.Rows) map[string]string {
 	cols,_ :=  rows.Columns()
 	scanArgs := make([]interface{}, len(cols))
 	values := make([]interface{}, len(cols))
@@ -35,5 +34,6 @@ func SQLToMap(rows *sql.Rows) map[string]string {
 			}
 		}
 	}
+
 	return record
 }

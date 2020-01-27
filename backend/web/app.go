@@ -1,9 +1,15 @@
 package main
 
 import (
+	"Kapi/config"
+	"Kapi/repositories"
+	"Kapi/services"
 	"Kapi/utils"
+	"Kapi/backend/web/controllers"
+	"context"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
+	"github.com/kataras/iris/mvc"
 )
 
 func main() {
@@ -13,6 +19,11 @@ func main() {
 	}
 	defer f.Close()
 	/* 初始化日志文件 */
+	AppConfig, err := config.GetConfig(utils.RootPath()+"/config/config.json")
+	if err != nil {
+		panic(err)
+	}
+	/* 读取配置文件 */
 	app := iris.New()
 	/* 主角登场 */
 	customLogger := logger.New(logger.Config{
@@ -34,25 +45,47 @@ func main() {
 		MessageHeaderKeys: []string{"User-Agent"},
 	})
 	app.Use(customLogger)
-	app.Logger().SetLevel("warning")
-	app.Logger().SetOutput(f)
+	app.Logger().SetLevel("info")
+	//app.Logger().SetOutput(f)
 	/* 日志初始化 */
-	app.StaticWeb("/static","./assets")
+	template := iris.HTML("./backend/web/views",".html")
+	template.Reload(true)
+	app.RegisterView(template)
+	/* 模版文件初始化 */
+	app.StaticWeb("/static",AppConfig.StaticPath)
 	/* 静态文件初始化 */
-	utils.InitErrorHandler(app)
+	app.OnAnyErrorCode(func(ctx iris.Context) {
+		ctx.ViewData("message",ctx.Values().Get("err_msg"))
+		//ctx.ViewLayout("")
+		err := ctx.View("public/err.html")
+		if err != nil {
+			panic(err)
+		}
+	})
 	/* 全局错误处理初始化 */
-	conn, err := utils.NewMysqlConn()
+	conn, err := utils.NewMysqlConn(AppConfig.MysqlDsn)
 	if err != nil {
 		panic(err)
 	}
 	/* 数据库连接初始化 */
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	/* 获取ctx结构体 */
+	userRespository := repositories.NewUserManager(conn,"user")
+	userService := services.NewUserService(userRespository)
+	userParty := app.Party("/user")
+	user := mvc.New(userParty)
+	user.Register(ctx, userService)
+	user.Handle(new(controllers.UserController))
 
-	err = app.Run(iris.Addr(":8080"),
+	/* user路由注册 */
+	err = app.Run(iris.Addr(AppConfig.Port),
 		iris.WithPathEscape,
 		iris.WithOptimizations,
 		iris.WithCharset("utf-8"),
 		iris.WithTimeFormat("2006-01-02 15:04:05"),
-		iris.WithoutServerError(iris.ErrServerClosed))
+		//iris.WithoutServerError(iris.ErrServerClosed)
+	)
 	if err != nil {
 		panic(err)
 	}

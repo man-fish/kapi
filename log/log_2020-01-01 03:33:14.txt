@@ -1,0 +1,40 @@
+Now listening on: http://localhost:8888
+Application started. Press CMD+C to shut down.
+[HTTP Server] http: panic serving [::1]:62692: runtime error: invalid memory address or nil pointer dereference
+goroutine 25 [running]:
+net/http.(*conn).serve.func1(0xc0002ac0a0)
+	/usr/local/Cellar/go/1.13.6/libexec/src/net/http/server.go:1767 +0x139
+panic(0x1694780, 0x1d1cf70)
+	/usr/local/Cellar/go/1.13.6/libexec/src/runtime/panic.go:679 +0x1b2
+Kapi/services.(*UserService).LoginByEmail(0xc0002ba050, 0x0, 0x0, 0xc0002c4085, 0x8, 0xd, 0x0, 0x0, 0x160e600)
+	/Users/inno/go/src/Kapi/services/user_service.go:22 +0x30
+Kapi/backend/web/controllers.(*UserController).PostLogin(0xc0002ba040, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0)
+	/Users/inno/go/src/Kapi/backend/web/controllers/user_controller.go:23 +0x161
+reflect.Value.call(0x16844c0, 0xc0002ba040, 0x213, 0x175c473, 0x4, 0x1d4f4a0, 0x0, 0x0, 0x1, 0xc0002d15b8, ...)
+	/usr/local/Cellar/go/1.13.6/libexec/src/reflect/value.go:460 +0x5f6
+reflect.Value.Call(0x16844c0, 0xc0002ba040, 0x213, 0x1d4f4a0, 0x0, 0x0, 0x213, 0x400, 0x2b56200)
+	/usr/local/Cellar/go/1.13.6/libexec/src/reflect/value.go:321 +0xb4
+github.com/kataras/iris/mvc.(*ControllerActivator).handlerOf.func2(0x1892f20, 0xc0000ea1b0)
+	/Users/inno/go/pkg/mod/github.com/kataras/iris@v11.1.1+incompatible/mvc/controller.go:409 +0x5b2
+github.com/kataras/iris/context.DefaultNext(0x1892f20, 0xc0000ea1b0)
+	/Users/inno/go/pkg/mod/github.com/kataras/iris@v11.1.1+incompatible/context/context.go:1208 +0x107
+github.com/kataras/iris/context.(*context).Next(0xc0000ea1b0)
+	/Users/inno/go/pkg/mod/github.com/kataras/iris@v11.1.1+incompatible/context/context.go:1217 +0x3e
+github.com/kataras/iris/middleware/logger.(*requestLoggerMiddleware).ServeHTTP(0xc0005025a0, 0x1892f20, 0xc0000ea1b0)
+	/Users/inno/go/pkg/mod/github.com/kataras/iris@v11.1.1+incompatible/middleware/logger/logger.go:50 +0x8f
+github.com/kataras/iris/context.Do(0x1892f20, 0xc0000ea1b0, 0xc0002744a0, 0x2, 0x2)
+	/Users/inno/go/pkg/mod/github.com/kataras/iris@v11.1.1+incompatible/context/context.go:922 +0x81
+github.com/kataras/iris/context.(*context).Do(0xc0000ea1b0, 0xc0002744a0, 0x2, 0x2)
+	/Users/inno/go/pkg/mod/github.com/kataras/iris@v11.1.1+incompatible/context/context.go:1094 +0x55
+github.com/kataras/iris/core/router.(*routerHandler).HandleRequest(0xc000261460, 0x1892f20, 0xc0000ea1b0)
+	/Users/inno/go/pkg/mod/github.com/kataras/iris@v11.1.1+incompatible/core/router/handler.go:227 +0x55c
+github.com/kataras/iris/core/router.(*Router).BuildRouter.func1(0x187b380, 0xc0002c8000, 0xc0002be100)
+	/Users/inno/go/pkg/mod/github.com/kataras/iris@v11.1.1+incompatible/core/router/router.go:84 +0x8f
+github.com/kataras/iris/core/router.(*Router).ServeHTTP(0xc000175040, 0x187b380, 0xc0002c8000, 0xc0002be100)
+	/Users/inno/go/pkg/mod/github.com/kataras/iris@v11.1.1+incompatible/core/router/router.go:161 +0x48
+net/http.serverHandler.ServeHTTP(0xc0000cc9a0, 0x187b380, 0xc0002c8000, 0xc0002be100)
+	/usr/local/Cellar/go/1.13.6/libexec/src/net/http/server.go:2802 +0xa4
+net/http.(*conn).serve(0xc0002ac0a0, 0x187d480, 0xc0001b01c0)
+	/usr/local/Cellar/go/1.13.6/libexec/src/net/http/server.go:1890 +0x875
+created by net/http.(*Server).Serve
+	/usr/local/Cellar/go/1.13.6/libexec/src/net/http/server.go:2928 +0x384

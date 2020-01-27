@@ -6,10 +6,10 @@ import (
 )
 
 func main() {
-	conn, err := utils.NewMysqlConn()
-	if err != nil {
-		panic(err)
-	}
+	//conn, err := utils.NewMysqlConn()
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	//username := "admin"
 	//pass_salt := utils.MD5("")
@@ -26,26 +26,26 @@ func main() {
 	//	panic(err)
 	//}
 	//fmt.Println(result.LastInsertId())
-
-	sql := "SELECT * FROM user"
-
-	stmt, err := conn.Prepare(sql)
-
-	if err != nil {
-		panic(err)
-	}
-
-	rows, err := stmt.Query()
-
-	if err != nil {
-		panic(err)
-	}
-
-	defer rows.Close()
-
-	fmt.Println(utils.SQLToMap(rows))
-
+	//sql := "SELECT * FROM user"
+	//
+	//stmt, err := conn.Prepare(sql)
+	//
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//rows, err := stmt.Query()
+	//
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//defer rows.Close()
+	//
+	//fmt.Println(utils.SQLToMap(rows))
+	fmt.Println("love")
 	scan([]int{1,23,3,4}...)
+	fmt.Println(utils.RootPath())
 }
 
 

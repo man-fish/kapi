@@ -1,0 +1,7 @@
+{
+  "mysql_dsn": "root:200118yu@tcp(127.0.0.1:3306)/kapi",
+  "static_path": "./assets",
+  "port": ":8888",
+  "security_key": "inno2000",
+  "security_expiresIn": 604800
+}
