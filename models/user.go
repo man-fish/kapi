@@ -6,6 +6,7 @@ type User struct{
 	Password 	string	`json:"password" sql:"password" Kapi:"password"`
 	Email	 	string	`json:"email" sql:"email" Kapi:"email"`
 	PassSalt 	string 	`json:"pass_salt" sql:"pass_salt"`
+	IP			string	`json:"ip" sql:"ip" Kapi:"ip"`
 	AddTime		string	`json:"add_time" sql:"add_time" Kapi:"add_time"`
 	UpTime		string	`json:"up_time" sql:"up_time" Kapi:"up_time"`
 }

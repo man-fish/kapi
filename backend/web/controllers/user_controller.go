@@ -4,8 +4,9 @@ import (
 	"Kapi/config"
 	"Kapi/services"
 	"Kapi/utils"
+	"Kapi/validator"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/mvc"
+	"gopkg.in/validator.v2"
 	"net/http"
 	"time"
 )
@@ -15,40 +16,60 @@ type UserController struct {
 	UserService services.IUserService
 }
 
-func (uc *UserController) PostLogin() mvc.View {
-	email := uc.Ctx.FormValue("email")
-	password := uc.Ctx.FormValue("password")
-	token, err := uc.UserService.LoginByEmail(email,password)
-	if err != nil {
-		uc.Ctx.Values().Set("err_msg",err)
-		uc.Ctx.Application().Logger().Errorf("Error in PostEmail:%v",err)
-		uc.Ctx.StatusCode(401)
+func (uc *UserController) PostLogin() {
+	loginValidator := new(validators.LoginValidator)
+	dec := utils.NewDecoder(&utils.DecoderOptions{TagName:"kapi"})
+	if err := dec.Decode(uc.Ctx.FormValues(),loginValidator); err != nil {
+		utils.ErrorWithCode(err,"PostEmail",400,uc.Ctx)
+		return
 	}
-
+	if err := validator.Validate(loginValidator); err != nil {
+		utils.ErrorWithCode(err,"PostEmail",400,uc.Ctx)
+		return
+	}
+	/* 校验器，没错这些都是校验器 */
+	token, err := uc.UserService.LoginByEmail(loginValidator.Email,loginValidator.Password)
+	if err != nil {
+		utils.ErrorWithError(err,"PostEmail,",uc.Ctx)
+		return
+	}
+	/* 登陆业务，返回token */
 	AppConfig, err := config.GetConfig(utils.RootPath()+"/config/config.json")
 	if err != nil {
-		uc.Ctx.Values().Set("err_msg",err)
-		uc.Ctx.Application().Logger().Errorf("Error in PostEmail:%v",err)
-		uc.Ctx.StatusCode(401)
-		//return mvc.View{
-		//	Name:"public/error.html",
-		//	Data:iris.Map{
-		//		"Message": fmt.Sprint(err),
-		//	},
-		//}
+		utils.ErrorWithCode(err,"PostEmail",400,uc.Ctx)
+		return
 	}
-
 	cookie := &http.Cookie{
 		Name:"token",
 		Value:token,
 		Expires:time.Now().Add(time.Duration(AppConfig.SecurityExpiresIn)),
 	}
 	uc.Ctx.SetCookie(cookie)
-
-	return mvc.View{
-		Name:"public/err.html",
-		Data:iris.Map{
-			"Message": token,
-		},
-	}
+	/* 获取全局配置并且设置token于Cookie */
+	uc.Ctx.JSON(utils.MakeDefaultRes(1,"登陆成功！",nil))
+	/* 返回 */
 }
+
+func (uc *UserController) PostRegister() {
+	registeValidator := new(validators.RegisterValidator)
+	dec := utils.NewDecoder(&utils.DecoderOptions{TagName:"kapi"})
+	if err := dec.Decode(uc.Ctx.FormValues(),registeValidator); err != nil {
+		utils.ErrorWithCode(err,"PostRegister",400,uc.Ctx)
+		return
+	}
+	if err := validator.Validate(registeValidator); err != nil {
+		utils.ErrorWithCode(err,"PostRegister",400,uc.Ctx)
+		return
+	}
+	/* 校验器，没错这些都是校验器 */
+	ip := uc.Ctx.RemoteAddr()
+	_, err := uc.UserService.RegisterByEmail(registeValidator.Username,registeValidator.Email,registeValidator.Password,ip)
+	if err != nil {
+		utils.ErrorWithError(err,"PostRegister",uc.Ctx)
+		return
+	}
+	/* 注册 */
+	uc.Ctx.JSON(utils.MakeDefaultRes(1,"注册成功！",nil))
+	/* 返回 */
+}
+

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"Kapi/config"
+	"Kapi/models"
 	"Kapi/utils"
 	"fmt"
 )
@@ -43,11 +45,26 @@ func main() {
 	//defer rows.Close()
 	//
 	//fmt.Println(utils.SQLToMap(rows))
-	fmt.Println("love")
-	scan([]int{1,23,3,4}...)
-	fmt.Println(utils.RootPath())
+	//fmt.Println("love")
+	//scan([]int{1,23,3,4}...)
+	//fmt.Println(utils.RootPath())
+	//try()
+
+	// Token from another example.  This token is expired
+	tokenstring, err := utils.DefaultToken(1)
+	if err != nil {
+
+	}
+	fmt.Println(tokenstring)
+	c, err := config.GetConfig("./../config/config.json")
+	utils.VerifyToken(tokenstring,c.SecurityKey)
+
 }
 
+func try() (user *models.User) {
+	fmt.Println(user)
+	return user
+}
 
 func scan(nums ...int) {
 	fmt.Println(nums)

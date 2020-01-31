@@ -1,12 +1,14 @@
 package main
 
 import (
+	"Kapi/backend/web/controllers"
 	"Kapi/config"
+	"Kapi/middleware"
 	"Kapi/repositories"
 	"Kapi/services"
 	"Kapi/utils"
-	"Kapi/backend/web/controllers"
 	"context"
+	"database/sql"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/mvc"
@@ -55,14 +57,10 @@ func main() {
 	app.StaticWeb("/static",AppConfig.StaticPath)
 	/* 静态文件初始化 */
 	app.OnAnyErrorCode(func(ctx iris.Context) {
-		ctx.ViewData("message",ctx.Values().Get("err_msg"))
-		//ctx.ViewLayout("")
-		err := ctx.View("public/err.html")
-		if err != nil {
-			panic(err)
-		}
+		ctx.JSON(utils.MakeDefaultRes(0, ctx.Values().Get("err_msg") , nil))
 	})
 	/* 全局错误处理初始化 */
+
 	conn, err := utils.NewMysqlConn(AppConfig.MysqlDsn)
 	if err != nil {
 		panic(err)
@@ -71,22 +69,39 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	/* 获取ctx结构体 */
-	userRespository := repositories.NewUserManager(conn,"user")
-	userService := services.NewUserService(userRespository)
-	userParty := app.Party("/user")
-	user := mvc.New(userParty)
-	user.Register(ctx, userService)
-	user.Handle(new(controllers.UserController))
+	mvc.Configure(app.Party("/user"), userHandler(conn, ctx))
+	mvc.Configure(app.Party("/group"), groupHandler(conn, ctx))
+	/* 路由注册 */
 
-	/* user路由注册 */
 	err = app.Run(iris.Addr(AppConfig.Port),
 		iris.WithPathEscape,
 		iris.WithOptimizations,
 		iris.WithCharset("utf-8"),
-		iris.WithTimeFormat("2006-01-02 15:04:05"),
-		iris.WithoutServerError(iris.ErrServerClosed))
+		iris.WithTimeFormat("2006-01-02 15:04:05"))
+		//iris.WithoutServerError(iris.ErrServerClosed))
 	if err != nil {
 		panic(err)
 	}
 	/* 启动服务 */
+}
+
+func userHandler(conn *sql.DB, ctx context.Context) func(*mvc.Application) {
+	return func(app *mvc.Application) {
+		userRepository := repositories.NewUserManager(conn,"Kapi_user")
+		userService := services.NewUserService(userRepository)
+		app.Register(ctx, userService)
+		app.Handle(new(controllers.UserController))
+	}
+}
+
+func groupHandler(conn *sql.DB, ctx context.Context) func(*mvc.Application) {
+	return func(app *mvc.Application) {
+		app.Router.Use(middleware.AuthWithToken)
+		userRepository := repositories.NewUserManager(conn,"Kapi_user")
+		groupRepository := repositories.NewGroupManager(conn,"Kapi_group")
+		memberRepository := repositories.NewMemberManager(conn, "Kapi_member")
+		groupService := services.NewGroupService(userRepository,groupRepository,memberRepository)
+		app.Register(ctx, groupService)
+		app.Handle(new(controllers.GroupController))
+	}
 }

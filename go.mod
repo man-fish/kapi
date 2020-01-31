@@ -41,6 +41,7 @@ require (
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413 // indirect
+	gopkg.in/validator.v2 v2.0.0-20191107172027-c3144fdedc21
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
 

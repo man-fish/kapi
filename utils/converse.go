@@ -1,10 +1,10 @@
 package utils
 
 import (
+	"errors"
 	"reflect"
 	"strconv"
 	"time"
-	"errors"
 )
 
 func MapToStructByTagSql(data map[string]string, obj interface{}) (err error) {
