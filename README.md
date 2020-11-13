@@ -1,2 +1,2 @@
 # kapi
-接口文档管理平台
+Interface document management platform written by go
